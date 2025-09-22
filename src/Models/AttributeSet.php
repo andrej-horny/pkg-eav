@@ -2,11 +2,10 @@
 
 namespace Dpb\Package\Eav\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class AttributeGroup extends Model
+class AttributeSet extends Model
 {
     use SoftDeletes;
 
@@ -16,21 +15,13 @@ class AttributeGroup extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'code',
         'title',
+        'entity_type',
     ];
 
     public function getTable()
     {
-        return config('pkg-eav.table_prefix') . 'attribute_groups';
+        return config('pkg-eav.table_prefix') . 'attribute_types';
     }
 
-    /**
-     * Scopes
-     */
-
-    public function scopeByCode(Builder $query, string $code)
-    {
-        return $query->where('code', '=', $code);
-    } 
 }

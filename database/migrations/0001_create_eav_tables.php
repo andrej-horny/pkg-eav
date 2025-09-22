@@ -37,6 +37,19 @@ return new class extends Migration
             $table->softDeletes();
         });
 
+        // attribute sets
+        Schema::create($tablePrefix . 'attribute_sets', function (Blueprint $table) {
+            $table->id();
+            $table->string('code')
+                ->nullable()
+                ->comment('');
+            $table->string('title')
+                ->nullable()
+                ->comment('');
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
         // attributes
         Schema::create($tablePrefix . 'attributes', function (Blueprint $table) use ($tablePrefix) {
             $table->id();
@@ -61,6 +74,37 @@ return new class extends Migration
             $table->unique(['code', 'group_id'], 'unq_attribute_code');
         });
 
+        // attribute set attributes
+        Schema::create($tablePrefix . 'attribute_set_attributes', function (Blueprint $table) use ($tablePrefix) {
+            $table->id();
+
+            $table->foreignId('set_id')
+                ->nullable()
+                ->comment('')
+                ->constrained($tablePrefix . 'attribute_sets', 'id');
+            $table->foreignId('attribute_id')
+                ->nullable()
+                ->comment('')
+                ->constrained($tablePrefix . 'attributes', 'id');
+
+            $table->timestamps();
+            $table->softDeletes();
+        });  
+
+        // attribute set entities
+        Schema::create($tablePrefix . 'attribute_set_entities', function (Blueprint $table) use ($tablePrefix) {
+            $table->id();
+
+            $table->foreignId('set_id')
+                ->nullable()
+                ->comment('')
+                ->constrained($tablePrefix . 'attribute_sets', 'id');
+            $table->string('entity_type');
+
+            $table->timestamps();
+            $table->softDeletes();
+        });  
+
         // attribute values
         Schema::create($tablePrefix . 'attribute_values', function (Blueprint $table) use ($tablePrefix) {
             $table->id();
@@ -75,7 +119,7 @@ return new class extends Migration
 
             $table->integer('value_int')->nullable();
             $table->decimal('value_decimal')->nullable();
-            $table->varchar('value_string')->nullable();
+            $table->string('value_string')->nullable();
             $table->boolean('value_bool')->nullable();
             $table->date('value_date')->nullable();
 
@@ -91,8 +135,11 @@ return new class extends Migration
     {
         $tablePrefix = config('pkg-eav.table_prefix');
 
+        Schema::dropIfExists($tablePrefix . 'attribute_set_entities');
+        Schema::dropIfExists($tablePrefix . 'attribute_set_attributes');
         Schema::dropIfExists($tablePrefix . 'attribute_values');
         Schema::dropIfExists($tablePrefix . 'attributes');
+        Schema::dropIfExists($tablePrefix . 'attribute_sets');
         Schema::dropIfExists($tablePrefix . 'attribute_groups');
         Schema::dropIfExists($tablePrefix . 'attribute_types');
     }

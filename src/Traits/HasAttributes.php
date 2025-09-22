@@ -3,18 +3,27 @@
 namespace Dpb\Package\Eav\Traits;
 
 use Dpb\Package\Eav\Models\Attribute;
+use Dpb\Package\Eav\Models\AttributeSet;
 use Dpb\Package\Eav\Models\AttributeValue;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 trait HasAttributes
 {
+    // public function attributeSets(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(AttributeSet::class, 'attribute_set_entities');
+    // }
+
     public function attributeValues()
     {
         return $this->morphMany(AttributeValue::class, 'entity');
     }
 
-    public function setAttributeValue(string $attributeCode, $value)
+    public function setAttrValue(string $attributeCode, $value)
     {
-        $attribute = Attribute::where('code', $attributeCode)->firstOrFail();
+        $attribute = Attribute::byCode($attributeCode)
+            ->with('type:id,code')
+            ->firstOrFail();
 
         $data = [
             'attribute_id' => $attribute->id,
@@ -25,21 +34,35 @@ trait HasAttributes
             'value_date' => null,
         ];
 
-        switch ($attribute->data_type) {
-            case 'string':  $data['value_string'] = $value; break;
-            case 'int':     $data['value_int'] = $value; break;
-            case 'decimal': $data['value_decimal'] = $value; break;
-            case 'boolean': $data['value_bool'] = (bool)$value; break;
-            case 'date':    $data['value_date'] = $value; break;
+        switch ($attribute->type->code) {
+            case 'string':
+                $data['value_string'] = $value;
+                break;
+            case 'integer':
+                $data['value_int'] = $value;
+                break;
+            case 'decimal':
+                $data['value_decimal'] = $value;
+                break;
+            case 'boolean':
+                $data['value_bool'] = (bool)$value;
+                break;
+            case 'date':
+                $data['value_date'] = $value;
+                break;
         }
 
         return $this->attributeValues()->updateOrCreate(
-            ['attribute_id' => $attribute->id],
+            [
+                'entity_type' => $this->getMorphClass(),
+                'entity_id'   => $this->getKey(),
+                'attribute_id' => $attribute->id
+            ],
             $data
         );
     }
 
-    public function getAttributeValue(string $attributeCode)
+    public function getAttrValue(string $attributeCode)
     {
         $value = $this->attributeValues()
             ->whereHas('attribute', fn($q) => $q->where('code', $attributeCode))
