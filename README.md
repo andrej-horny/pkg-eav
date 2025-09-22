@@ -1,3 +1,3 @@
 # TO DO 
 
-vykonana praca na niecom
+entity attribute value mechanism
