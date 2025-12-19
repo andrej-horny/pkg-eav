@@ -17,7 +17,8 @@ class Attribute extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'code',
+        'title',
         'group_id',
         'type_id',
     ];
@@ -31,12 +32,12 @@ class Attribute extends Model
     {
         return $this->belongsTo(AttributeGroup::class);
     }
-    
+
     public function type(): BelongsTo
     {
         return $this->belongsTo(AttributeType::class);
-    }   
-    
+    }
+
     /**
      * Scopes
      */
@@ -44,19 +45,19 @@ class Attribute extends Model
     public function scopeByCode(Builder $query, string $code)
     {
         return $query->where('code', '=', $code);
-    }   
+    }
 
     public function scopeByType(Builder $query, string $type)
     {
         return $query->whereHas('type', function($q) use ($type) {
             $q->byCode($type);
         });
-    }    
-    
+    }
+
     public function scopeByGroup(Builder $query, string $group)
     {
         return $query->whereHas('group', function($q) use ($group) {
             $q->byCode($group);
         });
-    }      
+    }
 }

@@ -17,6 +17,7 @@ class AttributeType extends Model
      */
     protected $fillable = [
         'code',
+        // 'title',
     ];
 
     public function getTable()
@@ -31,5 +32,5 @@ class AttributeType extends Model
     public function scopeByCode(Builder $query, string $code)
     {
         return $query->where('code', '=', $code);
-    }      
+    }
 }
