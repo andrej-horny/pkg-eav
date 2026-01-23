@@ -14,13 +14,12 @@ class EavServiceProvider extends PackageServiceProvider
             ->name('pkg-eav')
             ->hasConfigFile()
             ->hasMigrations([
-                '0001_create_eav_tables',
+                '2025-01-01-0001_create_eav_tables',
             ])
+            ->runsMigrations()
             ->hasInstallCommand(function (InstallCommand $command) {
                 $command
-                    ->publishMigrations()
-                    ->publishConfigFile()
-                    ->askToRunMigrations();
+                    ->publishConfigFile();
             });
     }    
 }
